@@ -14,6 +14,10 @@
 
 void	free_all(t_mini *mini)
 {
+	if (mini->line)
+		free(mini->line);
+	/*if (mini->args->arg)
+		free_lists(mini);*/
 	free(mini);
 }
 

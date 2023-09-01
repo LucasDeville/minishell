@@ -26,6 +26,20 @@ typedef enum e_operator
 	OP_WILD
 }	operator;
 
+typedef enum e_amp
+{
+	AMP_FALSE = -1,
+	AMP_NONE,
+	AMP_SUCCESS,
+}	prev_amp;
+
+typedef enum e_or
+{
+	OR_FALSE = -1,
+	OR_NONE,
+	OR_SUCCESS,
+}	prev_or;
+
 # include "Libft/libft.h"
 # include <stdio.h>
 # include <stdlib.h>
@@ -43,11 +57,14 @@ typedef enum e_operator
 
 typedef	struct	s_lists
 {
-	char	*arg;
-	operator operator;
-	char	*result;
-	int		priorities;
-	struct s_lists *previous;
+	char			*arg;
+	operator 		operator;
+	prev_amp		prev_amp;
+	prev_or			prev_or;
+	int				is_pipe;
+	char			*result;
+	int				priorities;
+	struct s_lists	*previous;
 	struct s_lists	*next;
 }	t_lists;
 
@@ -57,7 +74,7 @@ typedef struct s_mini
 	int		size_args;
 	t_lists	*args;
 	int		has_operator;
-	int	exit;
+	int		exit;
 }		t_mini;
 
 void	ft_command(t_mini *mini);

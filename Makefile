@@ -18,7 +18,7 @@ ${LIBFT}:
                 || echo "\033[1;31m~| Compilation de la lib : Erreur |~\033[0m"
 
 ${EXEC}: ${LIBFT} ${OBJS_EXEC}
-	${CC} ${CFLAGS} -lreadline -I ./minishell.h ${OBJS_EXEC} ${LIB} -o ${EXEC} \
+	${CC} ${CFLAGS} -lreadline -I ./minishell.h ${OBJS_EXEC} ${LIB} -lreadline -o ${EXEC} \
 		&& echo "\033[1;32m~| Compilation du $@ : OK |~\033[0m"\
 		|| echo "\033[1;31m~| Compilation du $@ : Erreur |~\033[0m"
 

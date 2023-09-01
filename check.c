@@ -12,9 +12,12 @@
 
 #include "minishell.h"
 
-void	ft_syntax_error(char *str)
+void	ft_syntax_error(char *str, char c, int i)
 {
-	printf("🟥𝓜 𝓲𝓷𝓲𝓼𝓱𝓮𝓵𝓵: syntax error near unexpected token `%s'\n", str);
+	if (!i)
+		printf("🟥𝓜 𝓲𝓷𝓲𝓼𝓱𝓮𝓵𝓵: syntax error near unexpected token `%s'\n", str);
+	else
+		printf("🟥𝓜 𝓲𝓷𝓲𝓼𝓱𝓮𝓵𝓵: syntax error near unexpected token `%c'\n", c);
 }
 
 int	ft_check_op2(char *str, int i)
@@ -23,17 +26,17 @@ int	ft_check_op2(char *str, int i)
 	{
 		i += 2;
 		if (str[i] == '<' && str[i + 1] == '<' )
-			return (ft_syntax_error("<"), -1);
+			return (ft_syntax_error("<", 0, 0), -1);
 		else if (str[i] == '<')
-			return (ft_syntax_error("newline"), -1);
+			return (ft_syntax_error("newline", 0, 0), -1);
 	}
 	if (str[i] == '>' && str[i + 1] == '>')
 	{
 		i += 2;
 		if (str[i] == '>' && str[i + 1] == '>' )
-			return (ft_syntax_error(">>"), -1);
+			return (ft_syntax_error(">>", 0, 0), -1);
 		else if (str[i] == '>')
-			return (ft_syntax_error(">"), -1);
+			return (ft_syntax_error(">", 0, 0), -1);
 	}
 	return (0);
 }
@@ -44,19 +47,19 @@ int	ft_check_op1(char *str, int i)
 	{
 		i += 2;
 		if (str[i] == '|' && str[i + 1] == '|' )
-			return (ft_syntax_error("||"), -1);
+			return (ft_syntax_error("||", 0, 0), -1);
 		else if (str[i] == '|')
-			return (ft_syntax_error("|"), -1);
+			return (ft_syntax_error("|", 0, 0), -1);
 	}
 	if (str[i] == '&')
 	{
 		if (str[i + 1] != '&')
-			return (ft_syntax_error("&"), -1);
+			return (ft_syntax_error("&", 0, 0), -1);
 		i += 2;
 		if (str[i] == '&' && str[i + 1] == '&' )
-			return (ft_syntax_error("&&"), -1);
+			return (ft_syntax_error("&&", 0, 0), -1);
 		else if (str[i] == '&')
-			return (ft_syntax_error("&"), -1);
+			return (ft_syntax_error("&", 0, 0), -1);
 	}
 	return (ft_check_op2(str, i));
 }
@@ -72,8 +75,8 @@ int	ft_check_line(char *str)
 		i++;
 	if (!str[i] || ft_check_op1(str, i) == -1)
 		return (-1);
-	if (str[i] == '|' || str[i] == '&' || str[i] == '\\')
-		return (printf("🔹𝓜 𝓲𝓷𝓲𝓼𝓱𝓮𝓵𝓵: syntax error near unexpected token `%c'", str[i]), -1);
+	if (str[i] == '|' || (str[i] == '&' && str[i] != '&') || str[i] == '\\')
+		return (ft_syntax_error(0, str[i], 1), -1);
 	while (str[i])
 	{
 		if (str[i] == '\'' || str [i] == '"')

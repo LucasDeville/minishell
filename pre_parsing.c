@@ -12,46 +12,119 @@
 
 #include "minishell.h"
 
-int	ft_count_args(char *line)
+int	count_operator(char *str)
 {
-	int	res;
+	int	op;
 	int	i;
 
-	if (!line)
+	if (!str)
 		return (0);
-	res = 0;
+	op = 0;
 	i = 0;
-	while (line[i] == ' ' || (line[i] >= 9 && line[i] <= 13))
+	while (str[i] == ' ' || (str[i] >= 9 && str[i] <= 13))
 		i++;
-	while (line[i])
+	while (str[i])
 	{
-		if (line[i] >= 33 && line[i] <= 126)
-			res++;
-		while (line[i] && line[i] >= 33 && line[i] <= 126)
-			i++;
-		while (line[i] && (line[i] == ' ' || (line[i] >= 9 && line[i] <= 13)))
-			i++;
+		if (str[i] == '|' || str[i] == '&' || str[i] == '(' 
+			|| str[i] == ')' || str[i] == '<' || str[i] == '>')
+		{
+			op++;
+			if (str[i + 1] == '|' || str[i + 1] == '&' || str[i + 1] == '(' 
+				|| str[i + 1] == ')' || str[i + 1] == '<' || str[i + 1] == '>')
+				i++;
+		}
+		i++;
 	}
-	return (res);
+	return (op);
+}
+
+void	ft_add_lists(t_mini *mini, int i, int l, operator op)
+{
+	t_lists *tmp;
+
+	if (has_other_op(mini->line[i], l))
+	{
+		l = ft_prev_op(mini->line[i], l);
+		ft_add_lists(mini, &i, l, ft_find_operator(mini->line, l));
+	}
+	tmp = mini->args;
+	while (tmp->next)
+		tmp->next;
+	tmp->next = ft_calloc(1, sizeof(t_lists));
+	tmp->next->previous = tmp;
+	tmp = tmp->next;
+	if (op == OP_PIPE)
+		tmp->is_pipe = 1;
+
+	tmp->operator = op;
+
+	/*
+		CHECK ARG IF OTHER OP LIKE && || *...
+	*/
+}
+
+void	ft_parse_op(t_mini *mini)
+{
+	int		i;
+	int		l;
+	char	*str;
+
+	i = 0;
+	str = mini->line;
+	while (str[i])
+	{
+		l = i;
+		while (str[i] == ' ' || (str[i] >= 9 && str[i] <= 13))
+			i++;
+		while (str[i] != '|'  && str[i + 1] != '|' || str[i] != '<' || str[i] != '>')
+			i++;
+		if (str[i] == '|' && str[i + 1] == '|')
+			ft_add_lists(mini, l, i - l, 1);
+		else if (str[i] == '<' || str[i + 1] == '>')
+			ft_add_lists(mini, l, i - l, 2);
+		else
+			ft_add_lists(mini, l, i - l, 0);
+		i++;
+	}
+
+
+
+	/*
+		REAL OP SEPARATOR :
+		|
+		<
+		>
+	*/
 }
 
 void	ft_init_lists(t_mini *mini)
 {
-	if (mini->has_operator == 0)
-    	mini->args = ft_calloc(ft_count_args(mini->line), sizeof(t_lists));
+	if (!mini->has_operator)
+	{
+    	mini->args = ft_calloc(1, sizeof(t_lists));
+		mini->args->arg = ft_strdup(mini->line);
+	}
 	else
 	{
-		//parse operator
+		//mini->args = ft_calloc(count_operator(mini->line) + 1, sizeof(t_lists));
+		ft_parse_op(mini->line);
 	}
-
-
 }
 
 void    ft_pre_parse(t_mini *mini)
 {
+	/*
+		Check add fuction when "echo <<>" need to display error
+	*/
 	if (ft_check_line(mini->line) == -1)
 		return ;
 	printf("check success\n");
 	mini->has_operator = ft_has_operator(mini);
+	if (mini->has_operator)
+	{
+		// Check if operator has args between them
+		printf("OP = %i \n", count_operator(mini->line));
+	}
+
 	//ft_init_lists(mini);
 }
