@@ -1,42 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strnstr.c                                       :+:      :+:    :+:   */
+/*   ft_strndup.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: bpleutin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/02/03 15:37:13 by bpleutin          #+#    #+#             */
-/*   Updated: 2023/09/05 11:08:34 by bpleutin         ###   ########.fr       */
+/*   Created: 2023/09/05 11:03:21 by bpleutin          #+#    #+#             */
+/*   Updated: 2023/09/05 11:06:15 by bpleutin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-char	*ft_strnstr(const char *big, const char *little, size_t len)
+char	*ft_strndup(const char *s, size_t size)
 {
+	char	*str;
 	size_t	i;
-	size_t	j;
+	size_t	len;
 
-	if (!big && len == 0)
-		return (0);
-	if (little[0] == '\0')
-		return ((char *)big);
+	if (size > ft_strlen(s))
+		len = ft_strlen(s);
+	else
+		len = size;
+	str = malloc(len * sizeof(char) + 1);
+	if (!str)
+		return (NULL);
 	i = 0;
-	j = 0;
-	while (big[i] && i < len)
+	while (i < len)
 	{
-		if (big[i] == little[j])
-		{
-			if (!little[j + 1])
-				return ((char *)&big[i - j]);
-			j++;
-		}
-		else
-		{
-			i = i - j;
-			j = 0;
-		}
+		str[i] = ((char *)s)[i];
 		i++;
 	}
-	return (NULL);
+	str[i] = 0;
+	return (str);
 }

@@ -6,7 +6,7 @@
 /*   By: bpleutin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/08 10:49:04 by bpleutin          #+#    #+#             */
-/*   Updated: 2023/04/25 14:49:14 by bpleutin         ###   ########.fr       */
+/*   Updated: 2023/09/05 11:07:29 by bpleutin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ static size_t	calc_size(char const *s, char c)
 	return (res);
 }
 
-static char	*ft_strndup(const char *src, size_t n)
+static char	*ft_strndup2(const char *src, size_t n)
 {
 	size_t	i;
 	char	*dest;
@@ -77,13 +77,13 @@ char	**ft_split(char const *s, char c)
 		if (s[i] == c)
 		{
 			if (i - last >= 1)
-				res[++k] = ft_strndup(&s[last], i - last + 1);
+				res[++k] = ft_strndup2(&s[last], i - last + 1);
 			last = i + 1;
 		}
 		i++;
 	}
 	if (i - last >= 1)
-		res[++k] = ft_strndup(&s[last], i - last + 1);
+		res[++k] = ft_strndup2(&s[last], i - last + 1);
 	res[++k] = 0;
 	return (res);
 }

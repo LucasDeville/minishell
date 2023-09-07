@@ -21,10 +21,12 @@ SRC = ft_isalpha.c \
       ft_strncmp.c \
       ft_memchr.c \
       ft_memcmp.c \
+      ft_realloc.c \
       ft_strnstr.c \
       ft_atoi.c \
       ft_calloc.c \
       ft_strdup.c \
+      ft_strndup.c \
       ft_substr.c \
       ft_strjoin.c \
       ft_strtrim.c \
@@ -46,7 +48,7 @@ SRC = ft_isalpha.c \
       ft_lstiter.c \
       ft_lstmap.c
 
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror -g
 
 OBJ = ${SRC:.c=.o}
 

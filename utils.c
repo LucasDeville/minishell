@@ -6,41 +6,71 @@
 /*   By: ldeville <ldeville@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/31 16:41:44 by ldeville          #+#    #+#             */
-/*   Updated: 2023/08/31 18:27:51 by ldeville         ###   ########.fr       */
+/*   Updated: 2023/09/06 16:12:56 by ldeville         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-/*int	ft_count_args(char *line)
+int	has_bracket(char *str)
 {
-	int	res;
 	int	i;
 
-	if (!line)
-		return (0);
-	res = 0;
 	i = 0;
-	while (line[i] == ' ' || (line[i] >= 9 && line[i] <= 13))
-		i++;
-	while (line[i])
+	while (str[i])
 	{
-		if (line[i] >= 33 && line[i] <= 126)
-			res++;
-		while (line[i] && line[i] >= 33 && line[i] <= 126)
-			i++;
-		while (line[i] && (line[i] == ' ' || (line[i] >= 9 && line[i] <= 13)))
-			i++;
+		if (str[i] == '(' || str[i] == ')')
+			return (1);
+		i++;
 	}
-	return (res);
-}*/
+	return (0);
+}
 
-
-operator	ft_find_operator(char *str, int l)
+void	free_args(t_mini *mini)
 {
-	if (str[l] == '||')
+	t_lists	*tmp;
+
+	if (mini->args)
+	{
+		tmp = mini->args;
+		while (tmp->next)
+			tmp = tmp->next;
+		while (tmp->previous)
+		{
+			tmp = tmp->previous;
+			free(tmp->next);
+		}
+		free(mini->args);
+		mini->args = NULL;
+	}
+	free(mini->line);
+	mini->line = NULL;
+}
+
+int	ft_size_until_op(char *str, int i, int l)
+{
+	char	c;
+	int		y;
+
+	y = 0;
+	while (str[i] && i <= l)
+	{
+		c = str[i];
+		if (c == '|' || c == '&' || c == '<' || c == '>')
+			return (y);
+		y++;
+		i++;
+	}
+	return (y);
+}
+
+t_operator	ft_find_operator(char *str, int l)
+{
+	if (str[l] == '|' && str[l - 1] == '|')
 		return (OP_2PIPE);
-	else if (str[l] == '&&')
+	else if (str[l] == '|')
+		return (OP_PIPE);
+	else if (str[l] == '&')
 		return (OP_2AMP);
 	else if (str[l] == '<' && str[l - 1] == '<')
 		return (OP_2INF);
@@ -50,6 +80,8 @@ operator	ft_find_operator(char *str, int l)
 		return (OP_2SUP);
 	else if (str[l] == '>')
 		return (OP_SUP);
+	else
+		return (OP_NONE);
 }
 
 int	ft_has_operator(t_mini *mini)
@@ -61,8 +93,8 @@ int	ft_has_operator(t_mini *mini)
 	while (mini->line[i])
 	{
 		c = mini->line[i];
-		if (c == '|' || (c == '&' && mini->line[i + 1] == '&') || c == '(' 
-			|| c == ')' || c == '<' || c == '>')
+		if (c == '|' || (c == '&' && mini->line[i + 1] == '&')
+				|| c == '<' || c == '>')
 			return (1);
 		i++;
 	}
