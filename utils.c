@@ -6,7 +6,7 @@
 /*   By: ldeville <ldeville@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/31 16:41:44 by ldeville          #+#    #+#             */
-/*   Updated: 2023/09/06 16:12:56 by ldeville         ###   ########.fr       */
+/*   Updated: 2023/10/05 16:25:42 by ldeville         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,11 @@ void	free_args(t_mini *mini)
 			tmp = tmp->next;
 		while (tmp->previous)
 		{
+			free(tmp->arg);
 			tmp = tmp->previous;
 			free(tmp->next);
 		}
+		free(tmp->arg);
 		free(mini->args);
 		mini->args = NULL;
 	}
@@ -56,6 +58,8 @@ int	ft_size_until_op(char *str, int i, int l)
 	while (str[i] && i <= l)
 	{
 		c = str[i];
+		y += is_quoted(str, i);
+		i += is_quoted(str, i);
 		if (c == '|' || c == '&' || c == '<' || c == '>')
 			return (y);
 		y++;
@@ -94,7 +98,7 @@ int	ft_has_operator(t_mini *mini)
 	{
 		c = mini->line[i];
 		if (c == '|' || (c == '&' && mini->line[i + 1] == '&')
-				|| c == '<' || c == '>')
+			|| c == '<' || c == '>')
 			return (1);
 		i++;
 	}

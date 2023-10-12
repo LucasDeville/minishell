@@ -16,6 +16,7 @@ SRC = ft_isalpha.c \
       ft_strlcat.c \
       ft_toupper.c \
       ft_tolower.c \
+      ft_realloc.c \
       ft_strchr.c \
       ft_strrchr.c \
       ft_strncmp.c \
@@ -55,13 +56,13 @@ OBJ = ${SRC:.c=.o}
 .c.o:
 	${GCC} ${FLAGS} -c $< -o ${<:.c=.o}
 
+all: ${NAME}
+
 ${NAME}: ${OBJ}
 	make -C Printf/
 	cp Printf/libftprintf.a .
 	mv libftprintf.a ${NAME}
 	ar rc ${NAME} ${OBJ}
-
-all: ${NAME}
 
 bonus: all
 

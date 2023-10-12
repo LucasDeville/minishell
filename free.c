@@ -1,28 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_realloc.c                                       :+:      :+:    :+:   */
+/*   free.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bpleutin <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: ldeville <ldeville@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/07 11:19:31 by bpleutin          #+#    #+#             */
-/*   Updated: 2023/09/07 11:19:47 by bpleutin         ###   ########.fr       */
+/*   Created: 2023/09/13 14:21:51 by ldeville          #+#    #+#             */
+/*   Updated: 2023/09/13 14:29:56 by ldeville         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "minishell.h"
 
-char	*ft_realloc(char *dest, int size)
+void	free_tabl(char **str)
 {
-	char	*tmp;
+	int	i;
 
-	tmp = malloc(size + 1);
-	if (!tmp)
-		return (NULL);
-	if (dest && dest[0])
-	{
-		ft_memcpy(tmp, dest, ft_strlen(dest) + 1);
-		free(dest);
-	}
-	return (tmp);
+	i = 0;
+	while (str[i])
+		free(str[i++]);
+	free(str);
 }

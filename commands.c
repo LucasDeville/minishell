@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   commands.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldeville <ldeville@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bpleutin <bpleutin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 16:50:33 by bpleutin          #+#    #+#             */
-/*   Updated: 2023/09/07 13:26:24 by bpleutin         ###   ########.fr       */
+/*   Updated: 2023/10/10 15:17:24 by bpleutin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@ void	ft_exit(t_mini *mini)
 
 void	ft_pwd(t_mini *mini)
 {
-	if (mini->has_operator && mini->args->operator == OP_PIPE)
+	if (mini->has_operator && (mini->args->operator == OP_SUP
+			|| mini->args->operator == OP_2SUP))
 	{
 		mini->args->result = malloc(ft_strlen(mini->path) + 2);
 		mini->args->result = mini->path;
@@ -36,6 +37,7 @@ void	ft_pwd(t_mini *mini)
 		write(1, mini->path, ft_strlen(mini->path));
 		write(1, "\n", 1);
 	}
+	mini->result_value = 0;
 }
 
 void	ft_env(t_mini *mini)
@@ -43,7 +45,8 @@ void	ft_env(t_mini *mini)
 	int	i;
 
 	i = 0;
-	if (mini->has_operator && mini->args->operator == OP_PIPE)
+	if (mini->has_operator && (mini->args->operator == OP_SUP
+			|| mini->args->operator == OP_2SUP))
 	{
 		while (mini->env[i])
 		{
@@ -60,6 +63,7 @@ void	ft_env(t_mini *mini)
 			i++;
 		}
 	}
+	mini->result_value = 0;
 }
 
 int	check_builtin(char *arg, char *ref)
@@ -73,30 +77,29 @@ int	check_builtin(char *arg, char *ref)
 	return (-1);
 }
 
-void	ft_command(t_mini *mini)
+void	ft_command(t_mini *mini, t_lists *tmp)
 {
-	t_lists	*tmp;
+	pid_t	pid;
 
-	tmp = mini->args;
-	while (tmp)
+	if (tmp->arg[0] && check_builtin(tmp->arg, "exit") == 0)
+		ft_exit(mini);
+	else if (tmp->arg[0] && check_builtin(tmp->arg, "echo") == 0)
+		ft_echo(mini, tmp->arg + 5);
+	else if (tmp->arg[0] && check_builtin(tmp->arg, "cd") == 0)
+		ft_cd(mini, tmp->arg + 2);
+	else if (tmp->arg[0] && check_builtin(tmp->arg, "pwd") == 0)
+		ft_pwd(mini);
+	else if (tmp->arg[0] && check_builtin(tmp->arg, "export") == 0)
+		ft_export(mini, tmp->arg + 6);
+	else if (tmp->arg[0] && check_builtin(tmp->arg, "unset") == 0)
+		ft_unset(mini, tmp->arg + 5);
+	else if (tmp->arg[0] && check_builtin(tmp->arg, "env") == 0)
+		ft_env(mini);
+	else
 	{
-		if (tmp->arg[0])
-		{
-			if (check_builtin(tmp->arg, "exit") == 0)
-				ft_exit(mini);
-			else if (check_builtin(tmp->arg, "echo") == 0)
-				ft_echo(mini, tmp->arg + 4);
-			else if (check_builtin(tmp->arg, "cd") == 0)
-				ft_cd(mini, tmp->arg + 2); //chdir + maybe change env
-			else if (check_builtin(tmp->arg, "pwd") == 0)
-				ft_pwd(mini);
-			else if (check_builtin(tmp->arg, "export") == 0)
-				mini->exit = 1;
-			else if (check_builtin(tmp->arg, "unset") == 0)
-				mini->exit = 1;
-			else if (check_builtin(tmp->arg, "env") == 0)
-				ft_env(mini);
-		}
-		tmp = tmp->next;
+		g_forked = 1;
+		pid = fork();
+		ft_fork(mini, tmp->arg, 0, pid);
+		g_forked = 0;
 	}
 }

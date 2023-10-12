@@ -6,7 +6,7 @@
 /*   By: ldeville <ldeville@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/07 10:32:12 by ldeville          #+#    #+#             */
-/*   Updated: 2023/09/07 11:23:55 by ldeville         ###   ########.fr       */
+/*   Updated: 2023/09/28 15:49:24 by ldeville         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,14 @@
 
 void	useless_bracket(t_lists *args)
 {
-	t_lists *tmp;
+	t_lists	*tmp;
 
 	tmp = args;
 	while (tmp)
 	{
-		if (has_bracket(tmp->arg) 
-			&& tmp->operator != OP_2AMP && tmp->operator != OP_2PIPE)
+		if (has_bracket(tmp->arg))
 		{
-			if (!tmp->previous || (tmp->previous && tmp->previous->operator != OP_2AMP 
-			&& tmp->previous->operator != OP_2PIPE))
+			if (tmp->previous)
 			{
 				delete_bracket(tmp);
 				while (!has_bracket(tmp->arg) && tmp->previous)
@@ -32,6 +30,8 @@ void	useless_bracket(t_lists *args)
 					tmp = tmp->previous;
 				}
 			}
+			else
+				delete_bracket(tmp);
 		}
 		tmp = tmp->next;
 	}
@@ -72,25 +72,52 @@ void	check_priorities(t_lists *args)
 			bracket = bracket_opened(tmp->arg);
 		if (bracket && count == 0)
 			old = tmp;
-		if (tmp && bracket)
-		{
+		if (tmp && bracket && count++)
 			bracket -= bracket_closed(tmp->arg);
-			count++;
-		}
 		if (count && !bracket)
+		{
 			add_priorities(old, tmp, count, unused_prio_num(args));
+			count = 0;
+		}
 		tmp = tmp->next;
 	}
 }
 
-void	ft_bracket(t_mini *mini)
+int	error_bracket(char *str)
+{
+	int		i;
+	int		y;
+	char	*error;
+
+	i = 0;
+	y = 0;
+	if (check_builtin(str, "echo") == 0
+		|| (str[0] == '(' && check_builtin(&str[1], "echo") == 0))
+	{
+		while (str[i] != ' ')
+			i++;
+		while (str[i] && str[i] != '(')
+			i++;
+		if (str[i] == '(')
+		{
+			while (str[y] && str[y] != ')')
+				y++;
+			error = ft_strndup(&str[i], y);
+			return (ft_syntax_error(error, 0, 0), free(error), 1);
+		}
+	}
+	return (0);
+}
+
+int	ft_bracket(t_mini *mini)
 {
 	if (!has_bracket(mini->line))
-		return ;
+		return (1);
+	if (error_bracket(mini->args->arg))
+		return (0);
 	useless_bracket(mini->args);
 	if (!has_bracket(mini->line))
-		return ;
-
+		return (1);
 	check_priorities(mini->args);
-	//check_bracket(mini->args);
+	return (1);
 }
